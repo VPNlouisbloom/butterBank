@@ -139,6 +139,10 @@ def withdrawal(account, index):
     print(Fore.WHITE + "Transaction completed! Your account balance is now $" + accountData[index][1] + ".") 
     time.sleep(1.5)
     input("Please press Enter to return to the menu: ")
+    clear()
+    logo()
+    print(Fore.WHITE + "Welcome to Butter Bank!")
+    print("The bank with butter in it!")
     break
 
 # defining the deposit function, which allows the user to deposit money from their account - Alex
@@ -169,6 +173,10 @@ def deposit(account, index):
     print(Fore.WHITE + "Transaction completed! Your account balance is now $" + accountData[index][1] + ".") 
     time.sleep(1.5)
     input("Please press Enter to return to the menu.")
+    clear()
+    logo()
+    print(Fore.WHITE + "Welcome to Butter Bank!")
+    print("The bank with butter in it!")
     break
 
 # defining the login section, ensures that the user is securely login and will terminate if too many wrong guesses are made. - Rav + Alex
@@ -188,7 +196,7 @@ def login():
       if curUser in accountNames:
         userIndex = accountNames.index(curUser)
         while True:
-          pin = input("Please enter your PIN: ").encode('utf-8')
+          pin = input(Fore.WHITE + "Please enter your PIN: ").encode('utf-8')
           # hash the pin
           cryptpin = hashlib.sha256(pin).hexdigest()
           if cryptpin == accountData[userIndex][2]:
@@ -196,7 +204,11 @@ def login():
             break
           else:
             attempts += 1
-            print(Fore.RED + "Sorry, that PIN was incorrect. Please try again")
+            clear()
+            logo()
+            print(Fore.WHITE + "Welcome to Butter Bank!")
+            print("The bank with butter in it!")
+            print(Fore.RED + "Sorry, that PIN was incorrect. Please try again.")
             if attempts == 3:
               print("Too many failed logins, terminating program.")
               time.sleep(3)
@@ -240,10 +252,10 @@ def login():
 def mainmenu():
   global accountData
   global verified
-  print("Login Successful!")
+  print(Fore.WHITE + "Login Successful!")
   time.sleep(2)
   clear()
-  print("Insert Butter Bank Logo")
+  logo()
   print("Welcome " + curUser + "!")
   print("You have $" + accountData[userIndex][1] + "!" )
   while True:
