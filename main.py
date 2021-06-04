@@ -115,12 +115,13 @@ def withdrawal(account, index):
   global accountData
   while True:  
     clear()
-    while True:  # grabs the amount
-      print(Fore.WHITE + f"You have ${accountData[index][1]}")
+    print(f"You have ${accountData[index][1]}")
+    while True:
+      amount = input("How much would you like to deposit? ")
       try:
-        amount = int(input("How much would you like to withdraw? "))
+        amount = int(amount)
       except:
-        print(Fore.RED + "Sorry, but we are unable to provide you non-whole number withdrawals. Please only enter a whole number: ")
+        print("Sorry, this ATM only can withdraw and deposit whole numbers. Please try again.")
       else:
         break
     if amount == 0:
@@ -150,16 +151,18 @@ def deposit(account, index):
   global accountData
   while True:
     clear()
+    print(f"You have ${accountData[index][1]}")
     while True:
-      print(Fore.WHITE + f"You have ${accountData[index][1]}")
+      amount = input("How much would you like to deposit? ")
       try:
-        amount = int(input("How much would you like to deposit? "))
+        amount = int(amount)
       except:
-        print(Fore.RED + "Sorry, but we are unable to provide you non-whole number withdrawals. Please only enter a whole number: ")
+        print("Sorry, this ATM only can withdraw and deposit whole numbers. Please try again.")
       else:
-        break
-      if amount > 10000:
-        print(Fore.RED + "Sorry, there is a limit of $10000 every day. Please visit one of our branches to deposit anything larger.")
+        if int(amount) > 10000:
+          print("Sorry, there is a limit of $10000 every day. Please visit one of our branches to deposit anything larger.")
+        else:
+          break
     if amount == 0:
       break
     transactiontype = "deposit"
@@ -170,12 +173,12 @@ def deposit(account, index):
     accountData[userIndex].insert(1, newAmountHeld)
     save(accountData)
     readAccounts()
-    print(Fore.WHITE + "Transaction completed! Your account balance is now $" + accountData[index][1] + ".") 
+    print("Transaction completed! Your account balance is now $" + accountData[index][1] + ".") 
     time.sleep(1.5)
     input("Please press Enter to return to the menu.")
     clear()
     logo()
-    print(Fore.WHITE + "Welcome to Butter Bank!")
+    print("Welcome to Butter Bank!")
     print("The bank with butter in it!")
     break
 
@@ -248,6 +251,24 @@ def login():
     if verified:
       break
 
+# defining the change PIN function, which allows users to change their PendingDeprecationWarning
+def changePIN():
+  while True:
+    checkPIN = input("Please enter your old PIN: ").encode('utf-8')
+    if hashlib.sha256(checkPIN).hexdigest() == accountData[userIndex][2]:  
+      newPIN = input("Please choose a PIN. It must be a 4 letter alphanumerical string, and will become uppercase if not formatted as such: ").encode('utf-8')
+      if len(newPIN) != 4 or not newPIN.isalnum():  #isupper() returns false if all are numbers, even though with only one letter that is upper it would return true, so we made it into a feature instead of a bug
+        print("Sorry, your PIN is either not 4 characters long or contains lowercase letters. Please type a new PIN.")
+      else:
+        break
+    else:
+      print("Sorry, your PIN is incorrect. Please try again.") 
+  newPIN = hashlib.sha256(newPIN.upper()).hexdigest()
+  accountData[userIndex].pop(2)
+  accountData[userIndex].insert(2, newPIN)
+  save(accountData)
+  readAccounts()
+
 # defining the main menu of the program, which is what the user is greeted to after logging in. - Rav
 def mainmenu():
   global accountData
@@ -275,7 +296,8 @@ def mainmenu():
         deposit(accountData, userIndex)
       if menuchoice == "2":
         withdrawal(accountData, userIndex)
-      #if menuchoice == "3":
+      if menuchoice == "3":
+        changePIN()
       if menuchoice == "4": 
         global verified
         verified = False
