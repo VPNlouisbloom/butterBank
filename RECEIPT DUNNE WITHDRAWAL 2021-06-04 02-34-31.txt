@@ -1,0 +1,12 @@
+Butter Bank
+22 Arroya Lane
+NSW 2121
+Phone: 17 38 88
+
+RECEIPT
+Transaction Type: Withdrawal
+Initial Amount: $10390
+Amount Withdrawn: -$5656
+Final Amount: $4734
+
+Thank you for using Butter Bank! Have a great day!

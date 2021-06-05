@@ -1,0 +1,12 @@
+Butter Bank
+22 Arroya Lane
+NSW 2121
+Phone: 17 38 88
+
+RECEIPT
+Transaction Type: Deposit
+Initial Amount: $4734
+Amount Deposited: +$5000
+Final Amount: $9734
+
+Thank you for using Butter Bank! Have a great day!

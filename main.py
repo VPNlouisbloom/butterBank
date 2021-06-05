@@ -117,7 +117,7 @@ def withdrawal(account, index):
     clear()
     print(f"You have ${accountData[index][1]}")
     while True:
-      amount = input("How much would you like to deposit? ")
+      amount = input("How much would you like to withdraw? ")
       try:
         amount = int(amount)
       except:
