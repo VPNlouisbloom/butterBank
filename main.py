@@ -7,7 +7,6 @@ from colorama import init, Fore
 init()
 
 # INITIALISATION #
-
 # initialising variables that are used throughout the code. - Alex + Rav
 curUser = ''  # current user
 verified = False  # has the current user entered correct pin, reset on logout
@@ -15,6 +14,7 @@ userIndex = 0  # index of the current user in accountData
 accountNames = []  # list of account names, these are used for ease of programming
 accountData = []  # formatted so that accessing a user's data is accountData[userIndex][0, 1 or 2], making grabbing data easier
 actual_time = strftime("%Y-%m-%d %H-%M-%S", gmtime()) # initialising a global value for the current date and time, to be used in both the receipt and main menu.
+
 
 # initialisation of account data, formatting for retrieval. - Alex
 def readAccounts():
@@ -27,8 +27,10 @@ def readAccounts():
     accountData.pop(n)
     accountData.insert(n, account.split(' '))
     n += 1
+  accountNames = []
   for account in accountData:
     accountNames.append(account[0])
+
 
 # FUNCTIONS #
 # defining the logo function, which prints the logo whenever it is needed. - Rav
@@ -67,9 +69,11 @@ def logo():
 |_______/  \______/    \___/   \___/   \_______/|__/            |_______/  \_______/|__/  |__/|__/  \__/      
 """)                                                                           
 
+
 # defining the clear function, which allows the program to clear the screen. - Rav
 def clear():
   os.system("cls")
+
 
 # defining the save function, which takes account data and reformates it back to how it is stored in accounts.txt - Alex
 def save(accounts):
@@ -111,6 +115,7 @@ def generateReceipt(user, type, transactionamount, initialamount, finalamount):
         logo()
         print(Fore.RED + "Sorry, your input was not able to be understood. Please only type y or n, and press enter.")
 
+
 # defining the withdrawal function, which allows the user to withdraw money from their account. - Alex
 def withdrawal(account, index):
   global accountData
@@ -142,14 +147,15 @@ def withdrawal(account, index):
     accountData[userIndex].insert(1, newAmountHeld)
     save(accountData)  # saving and re-reading account data
     readAccounts()
-    print(Fore.WHITE + "Transaction completed! Your account balance is now $" + accountData[index][1] + ".") 
+    print(Fore.GREEN + "Transaction completed! Your account balance is now $" + accountData[index][1] + ".") 
     time.sleep(1.5)
-    input("Please press Enter to return to the menu: ")
+    input(Fore.WHITE + "Please press Enter to return to the menu: ")
     clear()
     logo()
     print(Fore.WHITE + "Welcome to Butter Bank!")
     print("The bank with butter in it!")
     break
+
 
 # defining the deposit function, which allows the user to deposit money from their account - Alex
 def deposit(account, index):
@@ -179,14 +185,15 @@ def deposit(account, index):
     accountData[userIndex].insert(1, newAmountHeld)
     save(accountData)
     readAccounts()
-    print("Transaction completed! Your account balance is now $" + accountData[index][1] + ".") 
+    print(Fore.GREEN + "Transaction completed! Your account balance is now $" + accountData[index][1] + ".") 
     time.sleep(1.5)
-    input("Please press Enter to return to the menu.")
+    input(Fore.WHITE + "Please press Enter to return to the menu.")
     clear()
     logo()
     print(Fore.WHITE + "Welcome to Butter Bank!")
     print("The bank with butter in it!")
     break
+
 
 # defining the login section, ensures that the user is securely login and will terminate if too many wrong guesses are made. - Rav + Alex
 def login():
@@ -203,6 +210,7 @@ def login():
       attempts = 0  # too many attempts, and the program quits, safety feature
       curUser = input("Please enter your username: ")
       if curUser in accountNames:
+        userIndex = 0
         userIndex = accountNames.index(curUser)
         while True:
           pin = input(Fore.WHITE + "Please enter your PIN: ").encode('utf-8')
@@ -224,9 +232,8 @@ def login():
               quit()
       else:
         print(Fore.RED + "Sorry, there is no user with this username.")
-        print(Fore.WHITE + "Would you like to create a new account?")
         while True:
-          choice = input('[Yes/No]').lower()
+          choice = input(Fore.WHITE + "Would you like to create a new account? [Yes/No] ").lower()
           if choice != 'yes':
             break
           else:
@@ -244,10 +251,13 @@ def login():
                 newPIN = hashlib.sha256(newPIN.upper()).hexdigest()
                 open('accounts.txt', 'a').write(f"\n{newName} {0} {newPIN}")
                 readAccounts()
+                print(Fore.GREEN + 'Account succesfully created! Redirecting to login screen.')
+                time.sleep(2)
                 break
           break
         time.sleep(2)       
         clear()
+        logo()
         print(Fore.WHITE + "Welcome to Butter Bank!")
         time.sleep(1)
         print("The bank with the butter in it!")
@@ -256,6 +266,7 @@ def login():
         break
     if verified:
       break
+
 
 # defining the change PIN function, which allows users to change their PIN securely.
 def changePIN():
@@ -281,7 +292,7 @@ def changePIN():
   accountData[userIndex].insert(2, newPIN)
   save(accountData)
   readAccounts()
-  print("PIN changed successfully!")
+  print(Fore.GREEN + "PIN changed successfully!")
   time.sleep(1.5)
   input("Please press Enter to return to the menu.")
   clear()
@@ -289,17 +300,18 @@ def changePIN():
   print(Fore.WHITE + "Welcome to Butter Bank!")
   print("The bank with butter in it!")
 
+
 # defining the main menu of the program, which is what the user is greeted to after logging in. - Rav
 def mainmenu():
   global accountData
   global verified
-  print(Fore.WHITE + "Login Successful!")
+  print(Fore.GREEN + "Login Successful!")
   time.sleep(2)
-  clear()
-  logo()
-  print(Fore.WHITE + "Welcome " + curUser + "!")
-  print("You have $" + accountData[userIndex][1] + "!" )
   while True:
+    clear()
+    logo()
+    print(Fore.WHITE + "Welcome " + curUser + "!")
+    print("You have $" + accountData[userIndex][1] + "!" )
     print(Fore.WHITE + """
     [1] Deposit
     [2] Withdraw
@@ -321,6 +333,8 @@ def mainmenu():
         logo()
         changePIN()
       if menuchoice == "4": 
+        print("Thank you for choosing Butter Bank!")
+        time.sleep(2)
         global verified
         verified = False
         clear()
