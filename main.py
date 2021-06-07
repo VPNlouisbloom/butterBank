@@ -165,7 +165,7 @@ def deposit(account, index):
     logo()
     print(Fore.WHITE + f"Your current balance is ${accountData[index][1]}.")
     while True:
-      amount = input("How much would you like to deposit? $")
+      amount = input(Fore.WHITE + "How much would you like to deposit? $")
       try:
         amount = int(amount)
       except:
