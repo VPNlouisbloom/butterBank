@@ -1,5 +1,6 @@
 # IMPORTS #
 import time
+from datetime import date
 from time import gmtime, strftime
 import hashlib
 import os 
@@ -98,10 +99,12 @@ def generateReceipt(user, type, transactionamount, initialamount, finalamount):
         receipt.write("Phone: 17 38 88" + "\n\n")
         receipt.write("RECEIPT" + "\n")
         if type == "deposit":
+          receipt.write("Date: " + strftime("%d") + " " + strftime("%B") + " " + strftime("%Y") + "\n")
           receipt.write("Transaction Type: Deposit" + "\n")
           receipt.write("Initial Amount: $" + initialamount + "\n")
           receipt.write("Amount Deposited: +$" + transactionamount + "\n")
         elif type == "withdrawal":
+          receipt.write("Date: " + strftime("%d") + " " + strftime("%B") + " " + strftime("%Y") + "\n")
           receipt.write("Transaction Type: Withdrawal" + "\n")
           receipt.write("Initial Amount: $" + initialamount + "\n")
           receipt.write("Amount Withdrawn: -$" + transactionamount + "\n")
@@ -113,31 +116,34 @@ def generateReceipt(user, type, transactionamount, initialamount, finalamount):
       else:
         clear()
         logo()
-        print(Fore.RED + "Sorry, your input was not able to be understood. Please only type y or n, and press enter.")
+        print(Fore.RED + "Sorry, your input was not able to be understood. Please only type yes or no, and press enter.")
 
 
 # defining the withdrawal function, which allows the user to withdraw money from their account. - Alex
 def withdrawal(account, index):
   global accountData
-  mistake = False
+  sizerror = False
   while True:  
     clear()
     logo()
-    if mistake == True:
-      print(Fore.RED + "Sorry, you cannot withdraw anything more than your current balance. Please try again.")
+    if sizerror == True:
+      print(Fore.RED + "Sorry, you cannot withdraw anything more than your current balance/cannot withdraw negative values. Please try again.")
     print(Fore.WHITE + f"Your current balance is ${accountData[index][1]}.")
     while True:
       amount = input("How much would you like to withdraw? $")
       try:
         amount = int(amount)
       except:
-        print("Sorry, this ATM only can withdraw and deposit whole numbers. Please try again.")
+        clear()
+        logo()
+        print(Fore.RED + "Sorry, this ATM only can withdraw and deposit whole numbers. Please try again.")
+        print(Fore.WHITE + f"Your current balance is ${accountData[index][1]}.")
       else:
         break
     if amount == 0:
       break
-    elif amount > int(accountData[index][1]):
-      mistake = True
+    elif amount > int(accountData[index][1]) or 0 > amount:
+      sizerror = True
       continue
     transactiontype = "withdrawal"
     initialamount = accountData[userIndex][1]
@@ -159,40 +165,48 @@ def withdrawal(account, index):
 
 # defining the deposit function, which allows the user to deposit money from their account - Alex
 def deposit(account, index):
+  negativerror = False
+  interror = False
+  limerror = False
   global accountData
   while True:
     clear()
     logo()
+    if negativerror == True:
+      print(Fore.RED + "Sorry, you cannot deposit negative amounts. Please try again.")
+    if interror == True:
+      print(Fore.RED + "Sorry, this ATM only can withdraw and deposit whole numbers. Please try again.")
+    if limerror == True:
+      print(Fore.RED + "Sorry, in accordance to the law, this ATM has a limit of $10,000. Anything higher must be reported to the ATO.")
+    negativerror = False
+    interror = False
+    limerror = False
     print(Fore.WHITE + f"Your current balance is ${accountData[index][1]}.")
-    while True:
-      amount = input(Fore.WHITE + "How much would you like to deposit? $")
-      try:
-        amount = int(amount)
-      except:
-        print("Sorry, this ATM only can withdraw and deposit whole numbers. Please try again.")
+    amount = input(Fore.WHITE + "How much would you like to deposit? $")
+    try:
+      amount = int(amount)
+    except:
+      interror = True
+    else:
+      if int(amount) > 10000:
+        limerror = True
+      elif "-" in str(amount):
+        negativerror = True
       else:
-        if int(amount) > 10000:
-          print(Fore.RED + "Sorry, this ATM has a limit of $10,000 per user every day. Please visit one of our branches to deposit anything more.")
-        else:
-          break
-    if amount == 0:
-      break
-    transactiontype = "deposit"
-    initialamount = accountData[userIndex][1]
-    newAmountHeld = int(accountData[userIndex][1]) + amount
-    generateReceipt(curUser, transactiontype, str(amount), str(initialamount), str(newAmountHeld))
-    accountData[userIndex].pop(1)
-    accountData[userIndex].insert(1, newAmountHeld)
-    save(accountData)
-    readAccounts()
-    print(Fore.GREEN + "Transaction completed! Your account balance is now $" + accountData[index][1] + ".") 
-    time.sleep(1.5)
-    input(Fore.WHITE + "Please press Enter to return to the menu.")
-    clear()
-    logo()
-    print(Fore.WHITE + "Welcome to Butter Bank!")
-    print("The bank with butter in it!")
-    break
+        break
+  if amount == 0:
+    return None
+  transactiontype = "deposit"
+  initialamount = accountData[userIndex][1]
+  newAmountHeld = int(accountData[userIndex][1]) + amount
+  generateReceipt(curUser, transactiontype, str(amount), str(initialamount), str(newAmountHeld))
+  accountData[userIndex].pop(1)
+  accountData[userIndex].insert(1, newAmountHeld)
+  save(accountData)
+  readAccounts()
+  print(Fore.GREEN + "Transaction completed! Your account balance is now $" + accountData[index][1] + ".") 
+  time.sleep(1.5)
+  input(Fore.WHITE + "Please press Enter to return to the menu.")
 
 
 # defining the login section, ensures that the user is securely login and will terminate if too many wrong guesses are made. - Rav + Alex
@@ -238,14 +252,17 @@ def login():
             break
           else:
             newName = input(Fore.WHITE + "What would you like your username to be? ")
+            newName.replace(" ","")
             if newName in accountNames:
               print("A user with that name already exists, please log in instead.")
-              time.sleep(2)
+              time.sleep(1)
               break
-            time.sleep(1)
             while True:
-              newPIN = input("Please choose a PIN. It must be a 4 letter alphanumerical string, and will become uppercase if not formatted as such: ").encode('utf-8')
-              if len(newPIN) != 4 or not newPIN.isalnum():  #isupper() returns false if all are numbers, even though with only one letter that is upper it would return true, so we made it into a feature instead of a bug
+              newPIN = input(Fore.WHITE + "Please choose a PIN. It must be a 4 letter number. ").encode('utf-8')
+              if len(newPIN) != 4 or not newPIN.isdigit():  #isupper() returns false if all are numbers, even though with only one letter that is upper it would return true, so we made it into a feature instead of a bug
+                clear()
+                logo()
+                print(Fore.RED + "Sorry, the PIN you have chosen is either not a number, or is too long. Please try again.")
                 continue
               else:
                 newPIN = hashlib.sha256(newPIN.upper()).hexdigest()
@@ -254,14 +271,11 @@ def login():
                 print(Fore.GREEN + 'Account succesfully created! Redirecting to login screen.')
                 time.sleep(2)
                 break
-          break
-        time.sleep(2)       
+          break      
         clear()
         logo()
         print(Fore.WHITE + "Welcome to Butter Bank!")
-        time.sleep(1)
         print("The bank with the butter in it!")
-        time.sleep(2)
       if verified:
         break
     if verified:
@@ -274,11 +288,11 @@ def changePIN():
     checkPIN = input(Fore.WHITE + "Please enter your old PIN: ").encode('utf-8')
     while True:
       if hashlib.sha256(checkPIN).hexdigest() == accountData[userIndex][2]:  
-        newPIN = input(Fore.WHITE + "Please choose a PIN. It must be a 4 letter alphanumerical string, and will become uppercase if not formatted as such: ").encode('utf-8')
-        if len(newPIN) != 4 or not newPIN.isalnum():  #isupper() returns false if all are numbers, even though with only one letter that is upper it would return true, so we made it into a feature instead of a bug
+        newPIN = input(Fore.WHITE + "Please choose a PIN. It must be a 4 letter number. ").encode('utf-8')
+        if len(newPIN) != 4 or not newPIN.isdigit():  #isupper() returns false if all are numbers, even though with only one letter that is upper it would return true, so we made it into a feature instead of a bug
           clear()
           logo()
-          print(Fore.RED + "Sorry, your PIN is either not 4 characters long, or contains symbols which are not allowed.")
+          print(Fore.RED + "Sorry, the PIN you have chosen is either not a number, or is too long. Please try again.")
         else:
           break
       else:
@@ -294,7 +308,7 @@ def changePIN():
   readAccounts()
   print(Fore.GREEN + "PIN changed successfully!")
   time.sleep(1.5)
-  input("Please press Enter to return to the menu.")
+  input(Fore.WHITE + "Please press Enter to return to the menu.")
   clear()
   logo()
   print(Fore.WHITE + "Welcome to Butter Bank!")
@@ -338,7 +352,7 @@ def mainmenu():
         global verified
         verified = False
         clear()
-        login()
+        break
       if menuchoice == "5": 
         print("Thank you for choosing Butter Bank!")
         time.sleep(2)
